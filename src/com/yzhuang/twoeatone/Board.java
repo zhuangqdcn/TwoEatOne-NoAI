@@ -9,6 +9,7 @@ import java.util.*;
  * @param black the lower side team as 0.
  * @param white the upper side team as 1.
  */
+ //TODO change black and white to enum
 public class Board {
     static final int SIZE = 5;
     static final int BLACK = 0;
