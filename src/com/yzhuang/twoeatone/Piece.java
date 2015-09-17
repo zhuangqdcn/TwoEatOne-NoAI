@@ -11,24 +11,24 @@ package com.yzhuang.twoeatone;
  * @method setCoord set the coordinate of the piece.
  */
 public class Piece {
-	int x, y;
-	private int team;
+    int x, y;
+    private TEAM mTeam;
 	
-	Piece(int xx, int yy, int teamIdx){
-		x = xx;
-		y = yy;
-		this.team = teamIdx;
-		return;
-	}
+    Piece(int xx, int yy, TEAM team){
+        x = xx;
+        y = yy;
+        this.mTeam = team;
+        return;
+    }
 	
-	void setCoord(int xx, int yy){
-		x = xx;
-		y = yy;
-		return;
-	}
+    void setCoord(int xx, int yy){
+        x = xx;
+        y = yy;
+        return;
+    }
 	
-	int getTeam(){
-		return this.team;
-	}
+    int getTeam(){
+        return this.mTeam;
+    }
 
 }

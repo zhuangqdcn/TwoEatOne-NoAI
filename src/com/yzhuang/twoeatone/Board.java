@@ -12,8 +12,9 @@ import java.util.*;
  //TODO change black and white to enum
 public class Board {
     static final int SIZE = 5;
-    static final int BLACK = 0;
-    static final int WHITE = 1;
+    public enum TEAM{
+        WHITE, BLACK
+            }
     
     ArrayList<Piece> black = new ArrayList<>();
     ArrayList<Piece> white = new ArrayList<>();
@@ -26,22 +27,22 @@ public class Board {
         return;
     }
 	
-    boolean addNew(int team, int xx, int yy){
+    boolean addNew(TEAM team, int xx, int yy){
         if(this.isPieceOnPoint(xx, yy)||xx<0||xx>=size||yy<0||yy>=size)
             return false;
         else{
-            if(team==BLACK)
+            if(team==TEAM.BLACK)
                 if(black.size()>=size)
                     return false;
                 else{
-                    black.add(new Piece(xx,yy,BLACK));
+                    black.add(new Piece(xx,yy,TEAM.BLACK));
                     return true;
                 }
-            else if(team==WHITE)
+            else if(team==TEAM.WHITE)
                 if(white.size()>=size)
                     return false;
                 else{
-                    white.add(new Piece(xx,yy,WHITE));
+                    white.add(new Piece(xx,yy,TEAM.WHITE));
                     return true;
                 }		
         }
@@ -50,7 +51,7 @@ public class Board {
 	
     void movePiece(int team, int idx, int xNew, int yNew){
         Piece aPiece;
-        if(team==BLACK)
+        if(team==TEAM.BLACK)
             aPiece = black.get(idx);
         else
             aPiece = white.get(idx);
@@ -58,10 +59,10 @@ public class Board {
         return;
     }
 
-    ArrayList possibleKill(int team, int idx, int xNew, int yNew){
+    ArrayList possibleKill(TEAM team, int idx, int xNew, int yNew){
         ArrayList<Piece> teammate, opposite;
         ArrayList<Integer> possibleKillList = new ArrayList<Integer>();
-        int oTeam;
+        TEAM oTeam;
         boolean xPossibleKill = false;
         boolean yPOssibleKill = false;
         int countTeammateOnX = 0;
@@ -75,12 +76,12 @@ public class Board {
         if(team==BLACK){
             teammate = black;
             opposite = white;
-            oTeam = WHITE;
+            oTeam = TEAM.WHITE;
         }
         else{
             teammate = white;
             opposite = black;
-            oTeam = BLACK;
+            oTeam = TEAM.BLACK;
         }
         for(int i=0; i<teammate.size(); i++){
             if(i!=idx)
@@ -129,7 +130,7 @@ public class Board {
         return possibleKillList;
     }
 	
-    boolean isValidMove(int team, int idxPiece, int xNew, int yNew){
+    boolean isValidMove(TEAM team, int idxPiece, int xNew, int yNew){
         int xOld = getPieceX(team, idxPiece);
         int yOld = getPieceY(team, idxPiece);
         if(xNew<1||xNew>size)
@@ -163,15 +164,15 @@ public class Board {
             return false;
     }
 	
-    int remainingPieces(int team){
-        if(team==BLACK)
+    int remainingPieces(TEAM team){
+        if(TEAM.team==BLACK)
             return black.size();
         else
             return white.size();
     }
 	
-    int getPieceX(int team, int idx){
-        if(team==BLACK)
+    int getPieceX(TEAM team, int idx){
+        if(TEAM.team==BLACK)
             return black.get(idx).x;
         else
             return white.get(idx).x;
@@ -184,8 +185,8 @@ public class Board {
             return white.get(idx).y;
     }
 	
-    void killPieces(int pieceIdx, int team){
-        if(team==BLACK)
+    void killPieces(int pieceIdx, TEAM team){
+        if(TEAM.team==BLACK)
             black.remove(pieceIdx);
         else
             white.remove(pieceIdx);
