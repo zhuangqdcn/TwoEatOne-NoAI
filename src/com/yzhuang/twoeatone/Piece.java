@@ -1,6 +1,6 @@
 package com.yzhuang.twoeatone;
 
-
+import com.yzhuang.twoeatone.Board.TEAM;
 
 /**
  * @author YuanZhuang
@@ -14,21 +14,30 @@ public class Piece {
     int x, y;
     private TEAM mTeam;
 	
-    Piece(int xx, int yy, TEAM team){
+    public Piece(int xx, int yy, TEAM team){
         x = xx;
         y = yy;
         this.mTeam = team;
         return;
     }
 	
-    void setCoord(int xx, int yy){
+    public void setCoord(int xx, int yy){
         x = xx;
         y = yy;
         return;
     }
 	
-    int getTeam(){
+    public TEAM getTeam(){
         return this.mTeam;
     }
+    
+    public int getPieceX(){
+    	return x;
+    }
+    
+    public int getPieceY(){
+    	return y;
+    }
+    
 
 }
