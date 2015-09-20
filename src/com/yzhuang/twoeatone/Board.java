@@ -14,16 +14,26 @@ public class Board {
     public enum TEAM{
         WHITE, BLACK}
     
-    ArrayList<Piece> mBlack;
-    ArrayList<Piece> mWhite;
+    private ArrayList<Piece> mBlack;
+    private ArrayList<Piece> mWhite;
+    private int[][][] mPositions;
+    private int mPieceSize;
+    private TwoEatOneMain mMainActivity;
+    private int mIl; //need to figure out what il is
     
-    Board(){
+    Board(int[][][] positions, int pieceSize, int il, TwoEatOneMain mainActivity){
         int i;
         mBlack = new ArrayList<>();
         mWhite = new ArrayList<>();
+        mPositions = positions;
+        mPieceSize = pieceSize;
+        mMainActivity = mainActivity;
+        mIl = il;
         for(i=0;i<SIZE;i++){
-            mBlack.add(new Piece(1,i+1,TEAM.BLACK));
-            mWhite.add(new Piece(SIZE,i+1,TEAM.WHITE));
+            mBlack.add(new Piece(1,i+1,TEAM.BLACK
+            		, positions[0][i][0], positions[0][i][1], il, pieceSize, mainActivity));
+            mWhite.add(new Piece(SIZE,i+1,TEAM.WHITE
+            		, positions[SIZE-1][i][0], positions[SIZE-1][i][1], il, pieceSize, mainActivity));
         }
         return;
     }
@@ -41,14 +51,16 @@ public class Board {
                 if(mBlack.size()>=SIZE)
                     return false;
                 else{
-                    mBlack.add(new Piece(xx,yy,TEAM.BLACK));
+                    mBlack.add(new Piece(xx,yy,TEAM.BLACK
+                    		, mPositions[xx-1][yy-1][0], mPositions[xx-1][yy-1][1], mIl, mPieceSize, mMainActivity));
                     return true;
                 }
             else if(team==TEAM.WHITE)
                 if(mWhite.size()>=SIZE)
                     return false;
                 else{
-                    mWhite.add(new Piece(xx,yy,TEAM.WHITE));
+                    mWhite.add(new Piece(xx,yy,TEAM.WHITE
+                    		, mPositions[xx-1][yy-1][0], mPositions[xx-1][yy-1][1], mIl, mPieceSize, mMainActivity));
                     return true;
                 }		
         }
