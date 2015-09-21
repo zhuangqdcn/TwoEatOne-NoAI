@@ -94,7 +94,7 @@ public class Board {
                     mWhite.add(new Piece(xx,yy,TEAM.WHITE
                     		, mPositions[xx-1][yy-1][0], mPositions[xx-1][yy-1][1], mIl, mPieceSize, mMainActivity, this));
                     return true;
-                }		
+                }
         }
         return false;
     }

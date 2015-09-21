@@ -22,6 +22,9 @@ public class Handle {
 	private TEAM mTeam;
 	private TwoEatOneMain mMainActivity;
 	private Board mBoard;
+	
+	private static Color BLACK_HIGHLIGHT = new Color(64,64,64);
+	private static Color WHITE_HIGHLIGHT = new Color(192,192,192);
 
 	Handle(int ix, int iy, int il, int is,  TwoEatOneMain mainActivity, Board board, TEAM team) {
 		x = ix;
@@ -102,8 +105,16 @@ public class Handle {
 		mMainActivity.ellipse(boxx, boxy, size, size);
 		if(over||press){
 			//TODO need to find a better way to represent this
-			mMainActivity.fill(Color.RED.getRed(), Color.RED.getGreen(), Color.RED.getBlue());			
-			mMainActivity.ellipse(boxx, boxy, size/2, size/2);
+			switch(mTeam){
+			case BLACK:
+				mMainActivity.fill(BLACK_HIGHLIGHT.getRed(),BLACK_HIGHLIGHT.getGreen(),BLACK_HIGHLIGHT.getBlue());
+				break;
+			case WHITE:
+				mMainActivity.fill(WHITE_HIGHLIGHT.getRed(),WHITE_HIGHLIGHT.getGreen(),WHITE_HIGHLIGHT.getBlue());
+				break;
+			}
+			//mMainActivity.fill(Color.RED.getRed(), Color.RED.getGreen(), Color.RED.getBlue());			
+			mMainActivity.ellipse(boxx, boxy, size, size);
 		}
 	}
 	

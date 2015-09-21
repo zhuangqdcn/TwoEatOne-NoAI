@@ -17,5 +17,6 @@
 	<classpathentry kind="lib" path="libs/jogl-all-natives-linux-armv6hf.jar"/>
 	<classpathentry kind="lib" path="libs/jogl-all-natives-linux-i586.jar"/>
 	<classpathentry kind="lib" path="libs/jogl-all-natives-macosx-universal.jar"/>
+	<classpathentry kind="lib" path="libs/controlP5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

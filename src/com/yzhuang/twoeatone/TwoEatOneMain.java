@@ -2,9 +2,10 @@ package com.yzhuang.twoeatone;
 
 import java.awt.Color;
 
-import com.yzhuang.twoeatone.Board.TEAM;
-
 import processing.core.*;
+import controlP5.*;
+
+import com.yzhuang.twoeatone.Board.TEAM;
 /** 
  * @Author Yuan Zhuang
  * @Note This application is using Processing 3. 
@@ -13,13 +14,33 @@ import processing.core.*;
 
 public class TwoEatOneMain extends PApplet {
 	private int[][][] mPoints = new int[GUIConstants.BOARD_SIZE][GUIConstants.BOARD_SIZE][2];
-	Board mBoard;
+	private Board mBoard;
+	private ControlP5 mCp5Main;
 	
 	public void setup() {
 		//Add setup code for MyPApplet
 		
 		initialPoints();
 		mBoard = new Board(mPoints, GUIConstants.PIECE_SIZE, 0, this, TEAM.WHITE);
+		
+		noStroke();
+		PFont pfont = createFont("Arial",15,true); // use true/false for smooth/no-smooth
+		ControlFont font = new ControlFont(pfont,241);
+		mCp5Main = new ControlP5(this);
+
+		mCp5Main.addButton("newGameWhite").setPosition(10,20)
+			.setSize(150, 60).setCaptionLabel("New Game(White)");
+		mCp5Main.getController("newGameWhite").getCaptionLabel()
+	     .setFont(font).toUpperCase(false).setSize(15);
+		mCp5Main.addButton("newGameBlack").setPosition(220,20)
+			.setSize(150, 60).setCaptionLabel("New Game(Black)");
+		mCp5Main.getController("newGameBlack").getCaptionLabel()
+	     	.setFont(font).toUpperCase(false).setSize(15);
+		mCp5Main.addButton("exitGame").setPosition(430,20)
+			.setSize(150, 60).setCaptionLabel("Exit Game");
+		mCp5Main.getController("exitGame").getCaptionLabel()
+			.setFont(font).toUpperCase(false).setSize(15);
+		
 	}
 	
 	public void settings(){
@@ -33,11 +54,20 @@ public class TwoEatOneMain extends PApplet {
 		clear();
 		background(255);			//set canvas color	
 		drawBoard();
+		textSize(40);
 		if(mBoard.isBlackVictory()){
-			newGame(TEAM.WHITE);
+			clear();
+			background(255);
+			fill(Color.RED.getRed(), Color.RED.getGreen(), Color.RED.getBlue());
+			text("Black wins!",GUIConstants.CANVAS_WIDTH/2-100, GUIConstants.CANVAS_HEIGHT/2-10);
+			showAbout(GUIConstants.CANVAS_HEIGHT/2+30);
 		}
 		else if(mBoard.isWhiteVictory()){
-			newGame(TEAM.BLACK);
+			clear();
+			background(255);
+			fill(Color.RED.getRed(), Color.RED.getGreen(), Color.RED.getBlue());
+			text("White wins!",GUIConstants.CANVAS_WIDTH/2-100, GUIConstants.CANVAS_HEIGHT/2-10);
+			showAbout(GUIConstants.CANVAS_HEIGHT/2+30);
 		}
 		else{
 			mBoard.updateAndDisplayAll();
@@ -74,6 +104,26 @@ public class TwoEatOneMain extends PApplet {
 		PApplet.main(new String[] {"com.yzhuang.twoeatone.TwoEatOneMain"});
 	}
 	
+	public void newGameWhite(){
+		newGame(TEAM.WHITE);
+	}
+	
+	public void newGameBlack(){
+		newGame(TEAM.BLACK);
+	}
+	
+	private void showAbout( int y){
+		textSize(20);
+		fill(Color.BLACK.getRed(), Color.BLACK.getGreen(), Color.BLACK.getBlue());
+		text("Two eat one is a traditional board game in Qingdao, China. "
+				+ "The no-AI version is developed by Yuan Zhuang under GPLv2. "
+				+ "The AI version is under developing by collaboration between my friends and me.", 100,y,400,y+200 );
+	}
+	
+	public void exitGame(){
+		System.exit(0);
+	}
+	
 	public void newGame(TEAM team){
 		mBoard = new Board(mPoints, GUIConstants.PIECE_SIZE, 0, this, team);
 	}
@@ -87,7 +137,7 @@ public class TwoEatOneMain extends PApplet {
 		int dHorizontal = (baseRight - baseLeft) / 4;
 		for(int i=0; i< GUIConstants.BOARD_SIZE;i++){
 			for(int j=0; j<GUIConstants.BOARD_SIZE;j++){
-				mPoints[i][j][0] = baseTop + i * dHorizontal;
+				mPoints[i][j][0] = baseLeft + i * dHorizontal;
 				mPoints[i][j][1] = baseTop + j * dVertical;
 			}
 		}
@@ -95,10 +145,10 @@ public class TwoEatOneMain extends PApplet {
 	
 	private final class GUIConstants{
 		public static final int CANVAS_WIDTH = 600;
-		public static final int CANVAS_HEIGHT = 600;
+		public static final int CANVAS_HEIGHT = 650;
 		public static final int CANVAS_LEFT_MARGIN = 100;
 		public static final int CANVAS_RIGHT_MARGIN = 100;
-		public static final int CANVAS_TOP_MARGIN = 100;
+		public static final int CANVAS_TOP_MARGIN = 150;
 		public static final int CANVAS_BOTTOM_MARGIN = 100;
 		public static final int BOARD_SIZE = 5;
 		public static final int PIECE_SIZE = 
