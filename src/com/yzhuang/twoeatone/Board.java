@@ -19,7 +19,7 @@ public class Board {
     private int[][][] mPositions;
     private int mPieceSize;
     private TwoEatOneMain mMainActivity;
-    private int mIl; //need to figure out what il is
+    private int mIl; //initial x away from center
     
     Board(int[][][] positions, int pieceSize, int il, TwoEatOneMain mainActivity){
         int i;
@@ -30,10 +30,10 @@ public class Board {
         mMainActivity = mainActivity;
         mIl = il;
         for(i=0;i<SIZE;i++){
-            mBlack.add(new Piece(1,i+1,TEAM.BLACK
-            		, positions[0][i][0], positions[0][i][1], il, pieceSize, mainActivity));
-            mWhite.add(new Piece(SIZE,i+1,TEAM.WHITE
-            		, positions[SIZE-1][i][0], positions[SIZE-1][i][1], il, pieceSize, mainActivity));
+            mBlack.add(new Piece(i+1,1,TEAM.BLACK
+            		, positions[i][0][0], positions[i][0][1], il, pieceSize, mainActivity, this));
+            mWhite.add(new Piece(i+1,SIZE,TEAM.WHITE
+            		, positions[i][SIZE-1][0], positions[i][SIZE-1][1], il, pieceSize, mainActivity, this));
         }
         return;
     }
@@ -52,7 +52,7 @@ public class Board {
                     return false;
                 else{
                     mBlack.add(new Piece(xx,yy,TEAM.BLACK
-                    		, mPositions[xx-1][yy-1][0], mPositions[xx-1][yy-1][1], mIl, mPieceSize, mMainActivity));
+                    		, mPositions[xx-1][yy-1][0], mPositions[xx-1][yy-1][1], mIl, mPieceSize, mMainActivity, this));
                     return true;
                 }
             else if(team==TEAM.WHITE)
@@ -60,7 +60,7 @@ public class Board {
                     return false;
                 else{
                     mWhite.add(new Piece(xx,yy,TEAM.WHITE
-                    		, mPositions[xx-1][yy-1][0], mPositions[xx-1][yy-1][1], mIl, mPieceSize, mMainActivity));
+                    		, mPositions[xx-1][yy-1][0], mPositions[xx-1][yy-1][1], mIl, mPieceSize, mMainActivity, this));
                     return true;
                 }		
         }
@@ -73,7 +73,13 @@ public class Board {
             aPiece = mBlack.get(idx);
         else
             aPiece = mWhite.get(idx);
-        aPiece.setCoord(xNew, yNew);
+        aPiece.setCoord(xNew, yNew,mPositions[xNew-1][yNew-1][0], mPositions[xNew-1][yNew-1][1]);
+        return;
+    }
+    
+    void movePiece(Object currPiece, int xNew, int yNew){
+        Piece piece = (Piece)currPiece;
+        piece.setCoord(xNew, yNew, mPositions[xNew-1][yNew-1][0], mPositions[xNew-1][yNew-1][1]);
         return;
     }
 
@@ -154,6 +160,27 @@ public class Board {
             return false;
         return true;
     }
+    
+    public boolean isValidMove(TEAM team, Object currPiece, int xNew, int yNew){
+    	Piece piece = (Piece) currPiece;
+    	int xOld = piece.getPieceX();
+    	int yOld = piece.getPieceY();
+        if(xNew<1||xNew>SIZE)
+            return false;
+        if(yNew<1||yNew>SIZE)
+            return false;
+        if(Math.abs(xNew-xOld)>1)
+            return false;
+        if(Math.abs(yNew-yOld)>1)
+            return false;
+        if(Math.abs(yNew-yOld)==1&&Math.abs(xNew-xOld)==1)
+            return false;
+        if(Math.abs(yNew-yOld)==0&&Math.abs(xNew-xOld)==0)
+            return false;
+        if(isPieceOnPoint(xNew, yNew))
+            return false;
+        return true;
+    }
 	
     public boolean isBlackVictory(){
         if(mWhite.size()==1)
@@ -210,5 +237,77 @@ public class Board {
             }
         }
         return false;
+    }
+    
+    public void displayAll(){
+    	for(Piece piece: mWhite){
+    		piece.display();
+    	}
+    	for(Piece piece: mBlack){
+    		piece.display();
+    	}
+    }
+    
+    public void updateAll(){
+    	for(Piece piece: mWhite){
+    		piece.update();
+    	}
+    	for(Piece piece: mBlack){
+    		piece.update();
+    	}
+    }
+    
+    public boolean checkOtherLocks(){
+    	for(Piece piece: mWhite){
+    		if(piece.getLocked())
+    			return true;
+    	}
+    	for(Piece piece: mBlack){
+    		if(piece.getLocked())
+    			return true;
+    	}
+    	return false;
+    }
+    
+    public void releaseAll(){
+    	for(Piece piece: mWhite){
+    		piece.releaseEvent();
+    	}
+    	for(Piece piece: mBlack){
+    		piece.releaseEvent();
+    	}
+    }
+    
+    public void updateAndDisplayAll(){
+    	for(Piece piece: mWhite){
+    		piece.update();
+    		piece.display();
+    	}
+    	for(Piece piece: mBlack){
+    		piece.update();
+    		piece.display();
+    	}
+    }
+    
+    public int[][] findNearestXY(int xInput, int yInput){
+    	int[][] nearestXY = new int[2][2];
+    	int minDistance = Integer.MAX_VALUE;
+    	for(int i=0;i<SIZE; i++)
+    		for(int j=0; j<SIZE; j++){
+    			int newDistance = distance2(xInput, yInput
+    					, mPositions[i][j][0], mPositions[i][j][1]);
+    			if(newDistance<minDistance){
+    				minDistance = newDistance;
+    				nearestXY[0][0] = mPositions[i][j][0];
+    				nearestXY[0][1] = mPositions[i][j][1];
+    				nearestXY[1][0] = i+1;
+    				nearestXY[1][1] = j+1;
+    			}
+    		}
+    	return nearestXY;
+    }
+    
+    private int distance2(int x0, int y0, int x1, int y1){
+    	return (x0-x1)*(x0-x1) +(y0-y1)*(y0-y1);
     }
 }

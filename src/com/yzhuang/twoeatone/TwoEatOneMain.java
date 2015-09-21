@@ -12,8 +12,9 @@ public class TwoEatOneMain extends PApplet {
 	
 	public void setup() {
 		//Add setup code for MyPApplet
-		background(255);			//set canvas color	
+		
 		initialPoints();
+		mBoard = new Board(mPoints, GUIConstants.PIECE_SIZE, 0, this);
 	}
 	
 	public void settings(){
@@ -24,7 +25,15 @@ public class TwoEatOneMain extends PApplet {
 	public void draw() {
 		//Add drawing code for MyPApplet
 		//Draw board
+		clear();
+		background(255);			//set canvas color	
 		drawBoard();
+		mBoard.updateAndDisplayAll();
+	}
+	
+	public void mouseReleased()  {
+		mBoard.releaseAll();
+		
 	}
 	
 	public void drawBoard(){
@@ -65,6 +74,6 @@ public class TwoEatOneMain extends PApplet {
 		public static final int CANVAS_BOTTOM_MARGIN = 100;
 		public static final int BOARD_SIZE = 5;
 		public static final int PIECE_SIZE = 
-				(CANVAS_WIDTH-CANVAS_LEFT_MARGIN - CANVAS_RIGHT_MARGIN)/4/2*2/3;
+				(CANVAS_WIDTH-CANVAS_LEFT_MARGIN - CANVAS_RIGHT_MARGIN)/4/2*3/3;
 	}
 }

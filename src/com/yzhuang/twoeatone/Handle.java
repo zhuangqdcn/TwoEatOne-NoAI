@@ -1,5 +1,7 @@
 package com.yzhuang.twoeatone;
 
+import java.awt.Color;
+
 import com.yzhuang.twoeatone.Board.TEAM;
 
 /* @Author Yuan Zhuang
@@ -9,35 +11,48 @@ import com.yzhuang.twoeatone.Board.TEAM;
 public class Handle {
 	private int x, y;
 	private int boxx, boxy;
-	private int stretch;
+	private int stretchX;
+	private int stretchY;
 	private int size;
 	private boolean over;
 	private boolean press;
 	private boolean locked = false;
-
+	private boolean othersLocked = false;
+	private TEAM mTeam;
 	private TwoEatOneMain mMainActivity;
+	private Board mBoard;
 
-	Handle(int ix, int iy, int il, int is,  TwoEatOneMain mainActivity, TEAM team) {
+	Handle(int ix, int iy, int il, int is,  TwoEatOneMain mainActivity, Board board, TEAM team) {
 		x = ix;
 		y = iy;
-		stretch = il;
+		stretchX = il;
+		stretchY = il;
 		size = is;
-		boxx = x+stretch - size/2;
-		boxy = y - size/2;
+		boxx = x;
+		boxy = y;
 		mMainActivity = mainActivity;
+		mTeam = team;
+		mBoard = board;
 	}
-
+	
 	void update() {
-		boxx = x+stretch;
-		boxy = y - size/2;
-
-		if (press) {
-			stretch = lock(mMainActivity.mouseX-mMainActivity.width/2-size/2, 0, mMainActivity.width/2-size-1);
+		boxx = x + stretchX;
+		boxy = y + stretchY;
+		othersLocked = mBoard.checkOtherLocks();
+		if(!othersLocked){
+			overEvent();
+			pressEvent();
 		}
+		if (press) {
+			stretchX = mMainActivity.mouseX - x;
+			stretchY = mMainActivity.mouseY - y;
+		}
+		
+		
 	}
 
 	void overEvent() {
-		if (overRect(boxx, boxy, size, size)) {
+		if (overCircle(boxx, boxy, size)) {
 			over = true;
 		} else {
 			over = false;
@@ -55,16 +70,49 @@ public class Handle {
 
 	void releaseEvent() {
 		locked = false;
+		int[][] newXY = mBoard.findNearestXY(boxx, boxy);
+		if(mBoard.isValidMove(mTeam, this, newXY[1][0], newXY[1][1])){
+			boxx = newXY[0][0];
+			boxy = newXY[0][1];
+			stretchX = boxx - x;
+			stretchY = boxy - y;
+			mBoard.movePiece(this,newXY[1][0], newXY[1][1]);
+		}
+		else{
+			boxx = x;
+			boxy = y;
+			stretchX = boxx - x;
+			stretchY = boxy - y;
+		}
 	}
 
 	void display() {
 		mMainActivity.stroke(0);
-		mMainActivity.ellipse(boxx, boxy, size, size);
-		if (over || press) {
-			mMainActivity.line(boxx, boxy, boxx+size, boxy+size);
-			mMainActivity.line(boxx, boxy+size, boxx+size, boxy);
+		switch(mTeam){
+		case BLACK:
+			mMainActivity.fill(Color.BLACK.getRed(), Color.BLACK.getGreen(), Color.BLACK.getBlue());
+			break;
+		case WHITE:
+			mMainActivity.fill(Color.WHITE.getRed(), Color.WHITE.getGreen(), Color.WHITE.getBlue());
+			break;
+		default:
+			break;
 		}
-
+		mMainActivity.ellipse(boxx, boxy, size, size);
+		if(over||press){
+			//TODO need to find a better way to represent this
+			mMainActivity.fill(Color.RED.getRed(), Color.RED.getGreen(), Color.RED.getBlue());			
+			mMainActivity.ellipse(boxx, boxy, size/2, size/2);
+		}
+	}
+	
+	void setNewXY(int newX, int newY){
+		x = newX;
+		y = newY;
+		stretchX = 0;
+		stretchY = 0;
+		boxx = x;
+		boxy = y;
 	}
 	
 	boolean overRect(int x, int y, int width, int height) {
@@ -75,9 +123,21 @@ public class Handle {
 			return false;
 		}
 	}
-
+	boolean overCircle(int ix, int iy, int diameter) {
+		float disX = ix - mMainActivity.mouseX;
+		float disY = iy - mMainActivity.mouseY;
+		if (Math.sqrt(disX*disX + disY*disY) < diameter/2 ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 	int lock(int val, int minv, int maxv) { 
 		return  Math.min(Math.max(val, minv), maxv); 
+	}
+	
+	boolean getLocked(){
+		return locked;
 	}
 }
 
