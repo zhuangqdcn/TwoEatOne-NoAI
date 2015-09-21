@@ -3,16 +3,26 @@ package com.yzhuang.twoeatone;
 import com.yzhuang.twoeatone.Board.TEAM;
 
 /**
- * @author YuanZhuang
- * @param xx the coordinate x on the board.
- * @param yy the coordinate y on the board.
- * @param team the side of team of the piece.
+ * @author Yuan Zhuang
  * @method setCoord set the coordinate of the piece.
  */
 public class Piece extends Handle{
-    int x, y;
+    int x;	//the x coordinate of the piece 
+    int y;	//the y coordinate of the piece
     private TEAM mTeam;
 	
+    /**
+     * Default constructor
+     * @param xx x coordinate of the piece
+     * @param yy y coordinate of the piece
+     * @param team team side
+     * @param xScreen x coordinate in the screen
+     * @param yScreen y coordinate in the screen
+     * @param il the default difference
+     * @param size the size of the piece drawed on the screen
+     * @param mainActivity main/drawing activity
+     * @param board the board of the game
+     */
     public Piece(int xx, int yy, TEAM team,int xScreen
     		, int yScreen, int il, int size, TwoEatOneMain mainActivity, Board board){
     	super(xScreen, yScreen, il, size, mainActivity, board, team);

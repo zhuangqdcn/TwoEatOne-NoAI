@@ -5,7 +5,6 @@ package com.yzhuang.twoeatone;
 import java.util.*;
 /**
  * @author Yuan Zhuang
- * @param SIZE the size of the board, usually 5.
  * @method possibleKills returns the possible piece that would be kill by xNew yNew move
  * @method addNew add a new piece, if piece>SIZE, return false
  */
@@ -20,8 +19,17 @@ public class Board {
     private int mPieceSize;
     private TwoEatOneMain mMainActivity;
     private int mIl; //initial x away from center
+    private TEAM mTurn;
     
-    Board(int[][][] positions, int pieceSize, int il, TwoEatOneMain mainActivity){
+    /**
+     * Default constructor of the board.
+     * @param positions all the possible positions in the board
+     * @param pieceSize the size of the piece
+     * @param il the default difference from positions
+     * @param mainActivity the main activity handler
+     * @param firstTurn the first turn of the team
+     */
+    public Board(int[][][] positions, int pieceSize, int il, TwoEatOneMain mainActivity, TEAM firstTurn){
         int i;
         mBlack = new ArrayList<>();
         mWhite = new ArrayList<>();
@@ -35,15 +43,39 @@ public class Board {
             mWhite.add(new Piece(i+1,SIZE,TEAM.WHITE
             		, positions[i][SIZE-1][0], positions[i][SIZE-1][1], il, pieceSize, mainActivity, this));
         }
-        return;
-    }
-	
-    Board(ArrayList<Piece> black, ArrayList<Piece> white){
-    	mBlack = black;
-    	mWhite = white;
+        mTurn = firstTurn;
     }
     
-    boolean addNew(TEAM team, int xx, int yy){
+	/**
+	 * Overloaded constructor. used for construction from two piece array.
+	 * @param black the black team
+	 * @param white the white team
+	 * @param positions all the possible positions in the board
+     * @param pieceSize the size of the piece
+     * @param il the default difference from positions
+     * @param mainActivity the main activity handler
+     * @param firstTurn the first turn of the team
+	 */
+    public Board(ArrayList<Piece> black, ArrayList<Piece> white,int[][][] positions, int pieceSize, int il, TwoEatOneMain mainActivity, TEAM firstTurn){
+    	mBlack = black;
+    	mWhite = white;
+    	mBlack = new ArrayList<>();
+        mWhite = new ArrayList<>();
+        mPositions = positions;
+        mPieceSize = pieceSize;
+        mMainActivity = mainActivity;
+        mIl = il;
+        mTurn = firstTurn;
+    }
+    
+    /**
+     * Add a new piece to board
+     * @param team team side
+     * @param xx x coordinate
+     * @param yy y coordinate
+     * @return true: add success, false: not fail
+     */
+    public boolean addNew(TEAM team, int xx, int yy){
         if(this.isPieceOnPoint(xx, yy)||xx<0||xx>=SIZE||yy<0||yy>=SIZE)
             return false;
         else{
@@ -67,43 +99,109 @@ public class Board {
         return false;
     }
 	
-    void movePiece(TEAM team, int idx, int xNew, int yNew){
-        Piece aPiece;
+    /**
+     * Move the piece idx of team to xNew yNew
+     * @param team team side
+     * @param idx index of the piece
+     * @param xNew new x coordinate
+     * @param yNew new y coordinate
+     */
+    public void movePiece(TEAM team, int idx, int xNew, int yNew){
+        Piece piece;
         if(team==TEAM.BLACK)
-            aPiece = mBlack.get(idx);
+            piece = mBlack.get(idx);
         else
-            aPiece = mWhite.get(idx);
-        aPiece.setCoord(xNew, yNew,mPositions[xNew-1][yNew-1][0], mPositions[xNew-1][yNew-1][1]);
+            piece = mWhite.get(idx);
+        piece.setCoord(xNew, yNew,mPositions[xNew-1][yNew-1][0], mPositions[xNew-1][yNew-1][1]);
+        switch(mTurn){
+        case BLACK:
+        	mTurn = TEAM.WHITE;
+        	break;
+        case WHITE:
+        	mTurn = TEAM.BLACK;
+        	break;
+        }
+        HashSet<Piece> killedPieces = possibleKills(piece.getTeam(), idx, xNew, yNew);
+        killPieces(killedPieces, piece.getTeam());
+        piece.setCoord(xNew, yNew, mPositions[xNew-1][yNew-1][0], mPositions[xNew-1][yNew-1][1]);
+        switch(mTurn){
+        case BLACK:
+        	mTurn = TEAM.WHITE;
+        	break;
+        case WHITE:
+        	mTurn = TEAM.BLACK;
+        	break;
+        }
         return;
     }
     
-    void movePiece(Object currPiece, int xNew, int yNew){
+    /**
+     * overloaded method by moving piece object to xNew yNew
+     * @param currPiece current Piece object
+     * @param xNew new x coordinate
+     * @param yNew new y coordinate
+     */
+    public void movePiece(Object currPiece, int xNew, int yNew){
         Piece piece = (Piece)currPiece;
+        int idxPiece = 0;
+        switch(piece.getTeam()){
+        case BLACK:
+        	for(int i=0;i<mBlack.size();i++){
+        		if(mBlack.get(i)==piece){
+        			idxPiece = i;
+        			break;
+        		}
+        	}
+        	break;
+        case WHITE:
+        	for(int i=0;i<mWhite.size();i++){
+        		if(mWhite.get(i)==piece){
+        			idxPiece = i;
+        			break;
+        		}
+        	}
+        	break;
+        }
+        HashSet<Piece> killedPieces = possibleKills(piece.getTeam(), idxPiece, xNew, yNew);
+        killPieces(killedPieces, piece.getTeam());
         piece.setCoord(xNew, yNew, mPositions[xNew-1][yNew-1][0], mPositions[xNew-1][yNew-1][1]);
+        switch(mTurn){
+        case BLACK:
+        	mTurn = TEAM.WHITE;
+        	break;
+        case WHITE:
+        	mTurn = TEAM.BLACK;
+        	break;
+        }
         return;
     }
-
-    public ArrayList<Piece> possibleKills(TEAM team, int idx, int xNew, int yNew){
+    
+    /**
+     * get a set of the piece that possibly can be killed
+     * @param team team side
+     * @param idx piece idx of team
+     * @param xNew new x coordinate
+     * @param yNew new y coordinate
+     * @return a hashset of the piece when move to xNew yNew
+     */
+    public HashSet<Piece> possibleKills(TEAM team, int idx, int xNew, int yNew){
         ArrayList<Piece> teammateOnX = new ArrayList<>();
         ArrayList<Piece> oppositeOnX = new ArrayList<>();
         ArrayList<Piece> teammateOnY = new ArrayList<>();
         ArrayList<Piece> oppositeOnY = new ArrayList<>();
-        ArrayList<Piece> possibleKillList = new ArrayList<>();
+        HashSet<Piece> possibleKillList = new HashSet<>();
         ArrayList<Piece> teammate;
         ArrayList<Piece> opposite;
-        TEAM oppositeTeam;
         if(team==TEAM.BLACK){
             teammate = mBlack;
             opposite = mWhite;
-            oppositeTeam = TEAM.WHITE;
         }
         else{
             teammate = mWhite;
             opposite = mBlack;
-            oppositeTeam = TEAM.BLACK;
         }
         //first found all the piece on x and y
-        for(int i=0; i<SIZE;i++){
+        for(int i=0; i<teammate.size();i++){
         	if(i!=idx){
         		if(teammate.get(i).getPieceX()==xNew)
         			teammateOnX.add(teammate.get(i));
@@ -126,7 +224,7 @@ public class Board {
         		}
         	}
         }
-        if(oppositeOnX.size()==1&&teammateOnX.size()==1){
+        if(oppositeOnY.size()==1&&teammateOnY.size()==1){
         	if(Math.abs(teammateOnY.get(0).getPieceX()-xNew)==1){
         		if(xNew+teammateOnY.get(0).getPieceX()+oppositeOnY.get(0).getPieceX()
         				==3*mid3(xNew,teammateOnY.get(0).getPieceX(),oppositeOnY.get(0).getPieceX())){
@@ -141,9 +239,19 @@ public class Board {
     	return a>b?  ( c>a? a : (b>c? b:c) )  :  ( c>b? b : (a>c? a:c) ) ;
     }
     
+    /**
+     * determine whether a move is valid or not
+     * @param team team side
+     * @param idxPiece piece index of team
+     * @param xNew new x coordinate
+     * @param yNew new y coordinate
+     * @return true: a valid move, false: invalid move.
+     */
     public boolean isValidMove(TEAM team, int idxPiece, int xNew, int yNew){
         int xOld = getPieceX(team, idxPiece);
         int yOld = getPieceY(team, idxPiece);
+        if(team!=mTurn)
+    		return false;
         if(xNew<1||xNew>SIZE)
             return false;
         if(yNew<1||yNew>SIZE)
@@ -161,10 +269,20 @@ public class Board {
         return true;
     }
     
+    /**
+     * overloaded method by using currPiece object.
+     * @param team team side
+     * @param currPiece current piece object
+     * @param xNew new x coordinate
+     * @param yNew new y coordinate
+     * @return
+     */
     public boolean isValidMove(TEAM team, Object currPiece, int xNew, int yNew){
     	Piece piece = (Piece) currPiece;
     	int xOld = piece.getPieceX();
     	int yOld = piece.getPieceY();
+    	if(piece.getTeam()!=mTurn)
+    		return false;
         if(xNew<1||xNew>SIZE)
             return false;
         if(yNew<1||yNew>SIZE)
@@ -182,6 +300,10 @@ public class Board {
         return true;
     }
 	
+    /**
+     * determine whether black is victory
+     * @return true: black is victory, false: not
+     */
     public boolean isBlackVictory(){
         if(mWhite.size()==1)
             return true;
@@ -189,6 +311,10 @@ public class Board {
             return false;
     }
 	
+    /**
+     * determine whether white is victory
+     * @return true: white is victory, false: not
+     */
     public boolean isWhiteVictory(){
         if(mBlack.size()==1)
             return true;
@@ -196,6 +322,7 @@ public class Board {
             return false;
     }
 	
+    
     public int remainingPieces(TEAM team){
         if(team==TEAM.BLACK)
             return mBlack.size();
@@ -216,13 +343,32 @@ public class Board {
         else
             return mWhite.get(idx).y;
     }
-	
-    void killPieces(int pieceIdx, TEAM team){
-        if(team==TEAM.BLACK)
-            mBlack.remove(pieceIdx);
-        else
-            mWhite.remove(pieceIdx);
-        return;
+    
+    /**
+     * remove set pieces from the board
+     * @param pieces pieces
+     * @param team team side
+     */
+    void killPieces(HashSet<Piece> pieces, TEAM team){
+        if(pieces.size()>0){
+        	int idx = 0;
+        	ArrayList<Piece> killTeam = null;
+        	switch(team){
+        	case BLACK:
+        		killTeam = mWhite;
+        		break;
+        	case WHITE:
+        		killTeam = mBlack;
+        		break;
+        	}
+        	while(idx<killTeam.size()){
+        		if(pieces.contains(killTeam.get(idx))){
+        			killTeam.remove(idx);
+        		}
+        		else
+        			idx++;        		
+        	}
+        }
     }
 
     private boolean isPieceOnPoint(int xx, int yy){
@@ -310,4 +456,13 @@ public class Board {
     private int distance2(int x0, int y0, int x1, int y1){
     	return (x0-x1)*(x0-x1) +(y0-y1)*(y0-y1);
     }
+    
+    /**
+     * 
+     * @return return team of next turn
+     */
+    public TEAM getNextTurn(){
+    	return mTurn;
+    }
+    
 }

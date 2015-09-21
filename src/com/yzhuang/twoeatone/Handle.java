@@ -4,10 +4,11 @@ import java.awt.Color;
 
 import com.yzhuang.twoeatone.Board.TEAM;
 
-/* @Author Yuan Zhuang
- * Changes from https://processing.org/examples/handles.html
+/**
+ * @Author Yuan Zhuang
+ * @see https://processing.org/examples/handles.html
  * 
- */
+ **/
 public class Handle {
 	private int x, y;
 	private int boxx, boxy;

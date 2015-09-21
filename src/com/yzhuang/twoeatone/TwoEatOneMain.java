@@ -1,8 +1,13 @@
 package com.yzhuang.twoeatone;
 
+import java.awt.Color;
+
+import com.yzhuang.twoeatone.Board.TEAM;
+
 import processing.core.*;
-/* @Author Yuan Zhuang
- * This application is using Processing 3. 
+/** 
+ * @Author Yuan Zhuang
+ * @Note This application is using Processing 3. 
  * 
  */
 
@@ -14,7 +19,7 @@ public class TwoEatOneMain extends PApplet {
 		//Add setup code for MyPApplet
 		
 		initialPoints();
-		mBoard = new Board(mPoints, GUIConstants.PIECE_SIZE, 0, this);
+		mBoard = new Board(mPoints, GUIConstants.PIECE_SIZE, 0, this, TEAM.WHITE);
 	}
 	
 	public void settings(){
@@ -28,7 +33,26 @@ public class TwoEatOneMain extends PApplet {
 		clear();
 		background(255);			//set canvas color	
 		drawBoard();
-		mBoard.updateAndDisplayAll();
+		if(mBoard.isBlackVictory()){
+			newGame(TEAM.WHITE);
+		}
+		else if(mBoard.isWhiteVictory()){
+			newGame(TEAM.BLACK);
+		}
+		else{
+			mBoard.updateAndDisplayAll();
+		}
+		textSize(32);
+		switch(mBoard.getNextTurn()){
+		case BLACK:
+			fill(Color.BLUE.getRed(), Color.BLUE.getGreen(), Color.BLUE.getBlue());
+			text("Next turn is black.",10, GUIConstants.CANVAS_HEIGHT-10);
+			break;
+		case WHITE:
+			fill(Color.BLUE.getRed(), Color.BLUE.getGreen(), Color.BLUE.getBlue());
+			text("Next turn is white.",10, GUIConstants.CANVAS_HEIGHT-10);
+			break;	
+		}
 	}
 	
 	public void mouseReleased()  {
@@ -48,6 +72,10 @@ public class TwoEatOneMain extends PApplet {
 
 	public static void main(String[] args) {
 		PApplet.main(new String[] {"com.yzhuang.twoeatone.TwoEatOneMain"});
+	}
+	
+	public void newGame(TEAM team){
+		mBoard = new Board(mPoints, GUIConstants.PIECE_SIZE, 0, this, team);
 	}
 	
 	private void initialPoints(){
