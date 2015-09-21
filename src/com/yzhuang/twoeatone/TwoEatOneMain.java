@@ -116,7 +116,7 @@ public class TwoEatOneMain extends PApplet {
 		textSize(20);
 		fill(Color.BLACK.getRed(), Color.BLACK.getGreen(), Color.BLACK.getBlue());
 		text("Two eat one is a traditional board game in Qingdao, China. "
-				+ "The no-AI version is developed by Yuan Zhuang under GPLv2. "
+				+ "The no-AI version is developed by Yuan Zhuang under GPL v2. "
 				+ "The AI version is under developing by collaboration between my friends and me.", 100,y,400,y+200 );
 	}
 	
